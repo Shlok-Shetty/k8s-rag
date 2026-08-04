@@ -1,0 +1,22 @@
+# version: v1
+# mode: hybrid
+# vector:
+#   top_k: 30
+# bm25:
+#   top_k: 30
+# hybrid:
+#   rrf_k: 60
+# final_k: 5
+version: v2
+mode: hybrid_rerank
+vector:
+  top_k: 30
+bm25:
+  top_k: 30
+hybrid:
+  rrf_k: 60
+  candidates_k: 40
+rerank:
+  model: BAAI/bge-reranker-base
+  top_n: 25
+final_k: 5

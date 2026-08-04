@@ -1,0 +1,17 @@
+{
+  "n_total": 141,
+  "n_by_category": {
+    "out_of_domain": 30,
+    "adversarial": 20,
+    "answerable": 91
+  },
+  "recall_at_1": 0.5714285714285714,
+  "recall_at_5": 0.8791208791208791,
+  "mrr": 0.7110151753008895,
+  "answerable_correct_behavior": 0.8791208791208791,
+  "answerable_keyword_hit_rate": 0.8095238095238095,
+  "answerable_has_citations": 0.9120879120879121,
+  "refusal_accuracy": 0.98,
+  "elapsed_seconds": 588.3,
+  "avg_seconds_per_query": 4.17
+}

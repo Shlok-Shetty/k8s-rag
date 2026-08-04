@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+data/raw/
+data/processed/
+eval/sampled_chunks.jsonl
+eval/candidates.jsonl
+eval/reports/
+.pytest_cache/
+.DS_Store
+Thumbs.db
