@@ -1,0 +1,69 @@
+name: RAG eval
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "configs/**"
+      - "eval/**"
+      - "requirements.txt"
+      - ".github/workflows/eval.yml"
+  workflow_dispatch:
+
+jobs:
+  eval:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: cmd
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Activate venv and verify environment
+        run: |
+          call C:\Users\shlok\Desktop\k8s-rag\.venv\Scripts\activate.bat
+          python --version
+          python -c "import torch; print('cuda:', torch.cuda.is_available())"
+
+      - name: Ensure indexes exist
+        run: |
+          call C:\Users\shlok\Desktop\k8s-rag\.venv\Scripts\activate.bat
+          if not exist "C:\Users\shlok\Desktop\k8s-rag\data\processed\chunks.jsonl" (
+            echo "ERROR: chunks.jsonl missing. Rebuild locally first."
+            exit /b 1
+          )
+          if not exist "C:\Users\shlok\Desktop\k8s-rag\data\processed\chroma" (
+            echo "ERROR: chroma missing. Rebuild locally first."
+            exit /b 1
+          )
+          if not exist "C:\Users\shlok\Desktop\k8s-rag\data\processed\bm25.pkl" (
+            echo "ERROR: bm25.pkl missing. Rebuild locally first."
+            exit /b 1
+          )
+
+      - name: Copy indexes into CI workspace
+        run: |
+          xcopy /E /I /Y "C:\Users\shlok\Desktop\k8s-rag\data\processed" "data\processed"
+
+      - name: Run full eval
+        run: |
+          call C:\Users\shlok\Desktop\k8s-rag\.venv\Scripts\activate.bat
+          python -m eval.run_eval --tag ci --limit 40
+
+      - name: Check thresholds
+        run: |
+          call C:\Users\shlok\Desktop\k8s-rag\.venv\Scripts\activate.bat
+          for /f "delims=" %%f in ('dir /b /o-d eval\reports\*_ci_summary.json') do (
+            python -m eval.check_thresholds "eval\reports\%%f"
+            goto :done
+          )
+          :done
+
+      - name: Upload eval report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-report
+          path: eval/reports/

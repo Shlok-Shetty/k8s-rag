@@ -32,14 +32,18 @@ def load_golden(path: Path) -> list[dict]:
     return rows
 
 
-def run_one(row: dict, retriever, k_retrieve: int, k_final: int) -> dict:
+def run_one(row: dict, retriever, k_retrieve: int, k_final: int, retrieval_only: bool = False) -> dict:
     q = row["question"]
 
     hits = retriever.search(q, k=k_retrieve)
     retrieved_ids = [h["id"] for h in hits]
 
-    result = generate_answer(q, k=k_final, retriever=retriever)
-    resp = result["answer"]
+    if retrieval_only:
+        resp = ""
+        result = {"answer": "", "raw_answer": "", "enforcement_action": "skipped"}
+    else:
+        result = generate_answer(q, k=k_final, retriever=retriever)
+        resp = result["answer"]
 
     out = dict(row)
     out["retrieved_ids"] = retrieved_ids
@@ -65,6 +69,7 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--categories", type=str, default=None, help="comma-separated: answerable,out_of_domain,adversarial")
     parser.add_argument("--tag", type=str, default="run", help="report tag")
+    parser.add_argument("--retrieval-only", action="store_true", help="skip LLM generation, retrieval metrics only")
     args = parser.parse_args()
 
     rows = load_golden(GOLDEN_PATH)
@@ -83,7 +88,7 @@ def main() -> None:
     t0 = time.time()
     for row in tqdm(rows, desc="eval"):
         try:
-            results.append(run_one(row, retriever, K_RETRIEVE, K_FINAL))
+            results.append(run_one(row, retriever, K_RETRIEVE, K_FINAL, retrieval_only=args.retrieval_only))
         except Exception as e:
             print(f"failed {row['id']}: {e}")
             results.append({**row, "error": str(e)})
