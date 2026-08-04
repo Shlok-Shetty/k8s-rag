@@ -1,3 +1,5 @@
+import logging
+logging.getLogger("chromadb.telemetry.product.posthog").setLevel(logging.CRITICAL)
 # # import argparse
 # # import json
 # # from pathlib import Path

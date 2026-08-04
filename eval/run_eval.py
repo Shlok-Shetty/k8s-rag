@@ -5,6 +5,8 @@ from pathlib import Path
 
 from tqdm import tqdm
 
+import random
+
 from src.generate import answer as generate_answer
 from src.retrieve import build_retriever
 from eval.metrics import (
@@ -72,11 +74,14 @@ def main() -> None:
     parser.add_argument("--retrieval-only", action="store_true", help="skip LLM generation, retrieval metrics only")
     args = parser.parse_args()
 
+    
     rows = load_golden(GOLDEN_PATH)
     if args.categories:
         cats = set(args.categories.split(","))
         rows = [r for r in rows if r["category"] in cats]
-    if args.limit:
+    if args.limit and args.limit < len(rows):
+        rng = random.Random(0)
+        rng.shuffle(rows)
         rows = rows[: args.limit]
 
     print(f"eval set: {len(rows)} rows")
