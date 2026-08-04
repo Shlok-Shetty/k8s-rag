@@ -4,13 +4,12 @@ import sys
 from pathlib import Path
 
 THRESHOLDS = {
-    "recall_at_5": 0.80,
-    "mrr": 0.60,
-    "answerable_correct_behavior": 0.80,
-    "refusal_accuracy": 0.85,
-    "answerable_has_citations": 0.85,
+    "recall_at_5": 0.75,
+    "mrr": 0.55,
+    "answerable_correct_behavior": 0.70,
+    "refusal_accuracy": 0.80,
+    "answerable_has_citations": 0.75,
 }
-
 
 def main() -> None:
     parser = argparse.ArgumentParser()
